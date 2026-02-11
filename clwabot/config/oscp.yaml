@@ -1,0 +1,24 @@
+# Configuración OSCP / PEN-200 para stredes
+
+profile:
+  name: "stredes"
+  enrolled: false   # cámbialo a true si ya estás inscrito
+  hours_per_week: 10
+
+platforms:
+  - name: "Hack The Box"
+    key_focus: ["Linux", "Windows", "AD"]
+  - name: "TryHackMe"
+    key_focus: ["fundamentos", "web"]
+
+weak_spots:
+  - "Windows privesc"
+  - "Active Directory"
+
+labs:
+  # Ejemplo de estructura
+  - name: "EjemploLab1"
+    platform: "HTB"
+    ip: "10.10.10.10"
+    status: "pending"   # pending | in_progress | rooted
+    notes: []
