@@ -22,29 +22,35 @@ import shlex
 import subprocess
 import sys
 import time
+from hashlib import sha1
 from pathlib import Path
 
 OWNER_MSISDN = "+56954764325"
 VIP_MSISDN = "+56975551112"
-MEETING_GRACE_SECONDS = 15
+AUTO_RESPONSE_GRACE_SECONDS = 15
 OWNER_CONNECTED_IDLE_SECONDS = 20
+MAX_PENDING_EVENTS = 500
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-PRESENCE_PATH = BASE_DIR / "clwabot" / "data" / "owner_presence.json"
+NODE_BIN = "/home/stredesmers/.nvm/versions/node/v24.13.1/bin/node"
+OPENCLAW_MJS = "/home/stredesmers/.npm-global/lib/node_modules/openclaw/openclaw.mjs"
 
-from clwabot.core.meeting_session import get_active_meeting_session, has_meeting_trigger  # noqa: E402
+PRESENCE_PATH = BASE_DIR / "clwabot" / "data" / "owner_presence.json"
+PENDING_PATH = BASE_DIR / "clwabot" / "data" / "pending_inbox.json"
+
+from clwabot.core.meeting_session import get_active_meeting_session  # noqa: E402
+from clwabot.core.intent_router import classify_intent  # noqa: E402
+from clwabot.core.urgencia_session import get_active_session  # noqa: E402
 from clwabot.core.validator import validate_message  # noqa: E402
 from clwabot.core.whatsapp_agent import handle_incoming  # noqa: E402
 
 
-def run_cmd(cmd: str) -> int:
-    """Ejecuta un comando de shell y devuelve el exit code."""
-    proc = subprocess.run(
-        shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
+def run_cmd(cmd: list[str]) -> int:
+    """Ejecuta un comando y devuelve el exit code."""
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if proc.stdout:
         print(proc.stdout, file=sys.stderr)
     if proc.stderr:
@@ -52,16 +58,15 @@ def run_cmd(cmd: str) -> int:
     return proc.returncode
 
 
+def openclaw_cmd(*args: str) -> list[str]:
+    return [NODE_BIN, OPENCLAW_MJS, *args]
+
+
 def send_whatsapp_text(target: str, message: str) -> None:
     """Envía un texto simple por WhatsApp usando openclaw CLI."""
     if not message.strip():
         return
-    cmd = (
-        f"openclaw message send "
-        f"--channel whatsapp "
-        f"--target {shlex.quote(target)} "
-        f"--message {shlex.quote(message)}"
-    )
+    cmd = openclaw_cmd("message", "send", "--channel", "whatsapp", "--target", target, "--message", message)
     run_cmd(cmd)
 
 
@@ -69,12 +74,17 @@ def send_whatsapp_with_ics(target: str, message: str, ics_path: str) -> None:
     """Envía texto + archivo .ics como documento por WhatsApp."""
     if not message.strip():
         message = "Evento de calendario"
-    cmd = (
-        f"openclaw message send "
-        f"--channel whatsapp "
-        f"--target {shlex.quote(target)} "
-        f"--message {shlex.quote(message)} "
-        f"--path {shlex.quote(ics_path)}"
+    cmd = openclaw_cmd(
+        "message",
+        "send",
+        "--channel",
+        "whatsapp",
+        "--target",
+        target,
+        "--message",
+        message,
+        "--path",
+        ics_path,
     )
     run_cmd(cmd)
 
@@ -84,13 +94,11 @@ def schedule_delayed_whatsapp_text(target: str, message: str, delay_sec: int) ->
     if not message.strip():
         return
     delay = max(1, min(int(delay_sec), 900))
-    openclaw_cmd = (
-        f"openclaw message send "
-        f"--channel whatsapp "
-        f"--target {shlex.quote(target)} "
-        f"--message {shlex.quote(message)}"
+    cmd = " ".join(
+        shlex.quote(part)
+        for part in openclaw_cmd("message", "send", "--channel", "whatsapp", "--target", target, "--message", message)
     )
-    shell_cmd = f"sleep {delay}; {openclaw_cmd}"
+    shell_cmd = f"sleep {delay}; {cmd}"
     subprocess.Popen(["bash", "-lc", shell_cmd])
 
 
@@ -130,16 +138,95 @@ def owner_activity_since(trigger_ts: int) -> bool:
     return last >= trigger_ts
 
 
-def schedule_meeting_gate(msisdn: str, text: str, trigger_ts: int) -> None:
+def _load_pending() -> dict:
+    if not PENDING_PATH.exists():
+        return {"events": []}
+    try:
+        return json.loads(PENDING_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {"events": []}
+
+
+def _save_pending(state: dict) -> None:
+    PENDING_PATH.parent.mkdir(parents=True, exist_ok=True)
+    events = state.get("events", [])
+    if len(events) > MAX_PENDING_EVENTS:
+        state["events"] = events[-MAX_PENDING_EVENTS:]
+    PENDING_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _pending_id(msisdn: str, text: str, trigger_ts: int) -> str:
+    raw = f"{msisdn}|{trigger_ts}|{text.strip()}"
+    return sha1(raw.encode("utf-8")).hexdigest()
+
+
+def add_pending_event(msisdn: str, text: str, trigger_ts: int) -> None:
+    state = _load_pending()
+    event_id = _pending_id(msisdn, text, trigger_ts)
+    events = state.setdefault("events", [])
+    for item in events:
+        if item.get("id") == event_id:
+            return
+    events.append(
+        {
+            "id": event_id,
+            "msisdn": msisdn,
+            "text": text,
+            "trigger_ts": int(trigger_ts),
+            "status": "waiting_owner_check",
+            "updated_ts": int(time.time()),
+        }
+    )
+    _save_pending(state)
+
+
+def resolve_pending_event(msisdn: str, text: str, trigger_ts: int, status: str) -> None:
+    state = _load_pending()
+    event_id = _pending_id(msisdn, text, trigger_ts)
+    events = state.setdefault("events", [])
+    for item in events:
+        if item.get("id") == event_id:
+            item["status"] = status
+            item["updated_ts"] = int(time.time())
+            break
+    else:
+        events.append(
+            {
+                "id": event_id,
+                "msisdn": msisdn,
+                "text": text,
+                "trigger_ts": int(trigger_ts),
+                "status": status,
+                "updated_ts": int(time.time()),
+            }
+        )
+    _save_pending(state)
+
+
+def should_handle_as_pending(msisdn: str, text: str, role: str, is_urgency: bool) -> bool:
+    if role == "owner":
+        return False
+
+    if role == "vip":
+        return bool(is_urgency or get_active_session(msisdn) is not None)
+
+    # Contactos externos: solo intents clave + sesiones activas.
+    if get_active_meeting_session(msisdn) is not None:
+        return True
+    intent = classify_intent(text or "")
+    return intent in {"meeting", "urgency", "support", "sales"}
+
+
+def schedule_pending_gate(msisdn: str, text: str, trigger_ts: int) -> None:
     """Re-ejecuta listener luego de grace period para decidir si auto-responder."""
     cmd = (
         "python3 -m clwabot.hooks.whatsapp_listener "
         f"--msisdn {shlex.quote(msisdn)} "
         f"--text {shlex.quote(text)} "
-        "--deferred-meeting "
+        "--deferred-auto "
         f"--trigger-ts {int(trigger_ts)}"
     )
-    shell_cmd = f"sleep {MEETING_GRACE_SECONDS}; {cmd}"
+    shell_cmd = f"sleep {AUTO_RESPONSE_GRACE_SECONDS}; {cmd}"
     subprocess.Popen(["bash", "-lc", shell_cmd])
 
 
@@ -147,27 +234,39 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--msisdn", required=True)
     parser.add_argument("--text", required=True)
-    parser.add_argument("--deferred-meeting", action="store_true")
+    parser.add_argument("--deferred-auto", action="store_true")
     parser.add_argument("--trigger-ts", type=int, default=0)
     args = parser.parse_args()
 
     msisdn = args.msisdn
     text = args.text
-    is_deferred_meeting = bool(args.deferred_meeting)
+    is_deferred_auto = bool(args.deferred_auto)
     trigger_ts = int(args.trigger_ts or 0)
 
     validation = validate_message(msisdn, text)
     if validation.role == "owner":
         mark_owner_activity()
 
-    # Gate para que el formulario de reunión solo se dispare si el owner
-    # no está activo y no respondió durante los 15s posteriores.
-    if validation.role == "other" and has_meeting_trigger(text) and get_active_meeting_session(msisdn) is None:
-        if not is_deferred_meeting:
-            schedule_meeting_gate(msisdn=msisdn, text=text, trigger_ts=int(time.time()))
+    # Mensajes de terceros se tratan como "pendientes": solo se responde
+    # si pasan por keywords/tipo y no hubo actividad reciente del owner.
+    pending_candidate = should_handle_as_pending(
+        msisdn=msisdn,
+        text=text,
+        role=validation.role,
+        is_urgency=validation.is_urgency,
+    )
+    if validation.role != "owner" and pending_candidate:
+        if not is_deferred_auto:
+            now_ts = int(time.time())
+            add_pending_event(msisdn=msisdn, text=text, trigger_ts=now_ts)
+            schedule_pending_gate(msisdn=msisdn, text=text, trigger_ts=now_ts)
             return 0
         if owner_activity_since(trigger_ts) or owner_is_connected():
+            resolve_pending_event(msisdn=msisdn, text=text, trigger_ts=trigger_ts, status="seen_by_owner")
             return 0
+        resolve_pending_event(msisdn=msisdn, text=text, trigger_ts=trigger_ts, status="processing")
+    elif validation.role != "owner":
+        return 0
 
     decision = handle_incoming(msisdn, text)
 
@@ -212,6 +311,8 @@ def main() -> int:
             schedule_delayed_whatsapp_text(OWNER_MSISDN, owner_retry_msg, owner_retry_delay)
         if followup_msg and followup_delay > 0:
             schedule_delayed_whatsapp_text(reply_target, followup_msg, followup_delay)
+        if validation.role != "owner" and trigger_ts > 0:
+            resolve_pending_event(msisdn=msisdn, text=text, trigger_ts=trigger_ts, status="auto_replied")
         return 0
 
     # 3) Solo alerta al owner
@@ -221,9 +322,13 @@ def main() -> int:
                 send_whatsapp_with_ics(OWNER_MSISDN, owner_msg, owner_ics_path)
             else:
                 send_whatsapp_text(OWNER_MSISDN, owner_msg)
+        if validation.role != "owner" and trigger_ts > 0:
+            resolve_pending_event(msisdn=msisdn, text=text, trigger_ts=trigger_ts, status="alerted_owner")
         return 0
 
     # 4) Silencio
+    if validation.role != "owner" and trigger_ts > 0:
+        resolve_pending_event(msisdn=msisdn, text=text, trigger_ts=trigger_ts, status="silenced")
     return 0
 
 

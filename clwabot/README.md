@@ -77,6 +77,15 @@ Comandos por WhatsApp:
 - `/forzar-reunion +MSISDN`
 - `/ayuda`
 
+Comandos OSCP:
+
+- `/oscp-status` (avance y focos débiles)
+- `/oscp-plan` (plan semanal por horas)
+- `/oscp-next` (siguiente acción recomendada)
+- `/oscp-labs` (resumen de labs)
+- `/oscp-lab <nombre> <pending|in_progress|rooted>` (cambiar estado)
+- `/oscp-note <lab> | <nota>` (agregar nota operativa)
+
 ## Memoria y métricas
 
 - Memoria por contacto en `data/state.json` (`contacts.*`)
@@ -90,6 +99,12 @@ Comandos por WhatsApp:
 ```bash
 python -m clwabot.core.urgencia_dashboard --hours 24
 ```
+
+## Protocolo OSCP (lab autorizado)
+
+Guía operativa disponible en:
+
+`docs/OSCP_LAB_PROTOCOL.md`
 
 ## Tests
 

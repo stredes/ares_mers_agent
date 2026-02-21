@@ -7,6 +7,7 @@ Uso recomendado:
 
 from __future__ import annotations
 
+import json
 import re
 import shlex
 import subprocess
@@ -30,6 +31,12 @@ class InboundMessage:
 
 
 def parse_inbound_line(line: str) -> Optional[InboundMessage]:
+    # Newer OpenClaw logs can be JSON objects with structured payload.
+    structured = _parse_structured_json_line(line)
+    if structured is not None:
+        return structured
+
+    # Fallback for legacy plain-text log lines.
     lower = line.lower()
     if INBOUND_TAG not in lower or "inbound" not in lower:
         return None
@@ -56,6 +63,40 @@ def parse_inbound_line(line: str) -> Optional[InboundMessage]:
         return None
 
     return InboundMessage(msisdn=msisdn, text=text)
+
+
+def _parse_structured_json_line(line: str) -> Optional[InboundMessage]:
+    if not line.startswith("{"):
+        return None
+    try:
+        payload = json.loads(line)
+    except Exception:
+        return None
+
+    level2 = str(payload.get("2", "")).lower()
+    data = payload.get("1")
+    if not isinstance(data, dict):
+        return None
+
+    # Supported structured events:
+    # - {"module":"web-inbound"} + "inbound message"
+    # - {"module":"web-auto-reply"} + "inbound web message"
+    if "inbound" not in level2:
+        return None
+
+    msisdn = str(data.get("from", "")).strip()
+    body = str(data.get("body", "")).strip()
+    if not msisdn or not body:
+        return None
+
+    # Some payloads wrap body as: "[WhatsApp +56 ...] actual message"
+    if body.startswith("[WhatsApp ") and "]" in body:
+        body = body.split("]", 1)[1].strip()
+
+    if not body:
+        return None
+
+    return InboundMessage(msisdn=msisdn, text=body)
 
 
 def run_listener(msisdn: str, text: str) -> None:

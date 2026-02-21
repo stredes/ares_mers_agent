@@ -6,6 +6,14 @@ from typing import Dict, Optional
 import pytz
 
 from .meeting_session import get_active_meeting_session, handle_meeting_message
+from .oscp_agent import (
+    add_lab_note,
+    format_labs_text,
+    format_plan_text,
+    format_status_text,
+    get_next_action,
+    set_lab_status,
+)
 from .state_store import load_state, save_state
 from .urgencia_session import get_active_session
 
@@ -85,6 +93,45 @@ def handle_owner_command(text: str) -> Optional[str]:
         payload = handle_meeting_message(target, "quiero agendar una reunion")
         return payload.get("contact_message", "No se pudo iniciar formulario de reunión.")
 
+    if op in {"/oscp-status"}:
+        return format_status_text()
+
+    if op in {"/oscp-plan"}:
+        return format_plan_text()
+
+    if op in {"/oscp-next"}:
+        return get_next_action()
+
+    if op in {"/oscp-labs"}:
+        return format_labs_text()
+
+    if op in {"/oscp-lab"} and len(parts) >= 3:
+        status_map = {
+            "pending": "pending",
+            "pendiente": "pending",
+            "in_progress": "in_progress",
+            "en_curso": "in_progress",
+            "curso": "in_progress",
+            "rooted": "rooted",
+            "completo": "rooted",
+        }
+        status = status_map.get(parts[-1].lower())
+        if not status:
+            return "Estado inválido. Usa: pending | in_progress | rooted"
+        lab_name = " ".join(parts[1:-1]).strip()
+        if not lab_name:
+            return "Uso: /oscp-lab <nombre> <pending|in_progress|rooted>"
+        return set_lab_status(lab_name, status)
+
+    if op in {"/oscp-note"} and len(parts) >= 3:
+        payload = cmd[len(parts[0]) :].strip()
+        if "|" not in payload:
+            return "Uso: /oscp-note <lab> | <nota>"
+        lab_name, note = payload.split("|", 1)
+        if not lab_name.strip() or not note.strip():
+            return "Uso: /oscp-note <lab> | <nota>"
+        return add_lab_note(lab_name.strip(), note.strip())
+
     if op in {"/horario"} and len(parts) >= 3:
         start = parts[1]
         end = parts[2]
@@ -100,7 +147,10 @@ def handle_owner_command(text: str) -> Optional[str]:
             "/pausar | /reanudar\n"
             "/modo normal|busy|vacation\n"
             "/horario HH:MM HH:MM\n"
-            "/forzar-reunion +MSISDN"
+            "/forzar-reunion +MSISDN\n"
+            "/oscp-status | /oscp-plan | /oscp-next | /oscp-labs\n"
+            "/oscp-lab <nombre> <pending|in_progress|rooted>\n"
+            "/oscp-note <lab> | <nota>"
         )
 
     return "Comando no reconocido. Usa /ayuda"
