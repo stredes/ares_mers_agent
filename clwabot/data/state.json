@@ -1,0 +1,500 @@
+{
+  "vip": {
+    "last_morning_sent": {
+      "+56975551112": "2026-02-11"
+    }
+  },
+  "reports": {
+    "last_daily_report": "2026-02-21",
+    "last_weekly_report": "2026-02-21"
+  },
+  "assistant": {
+    "paused": false,
+    "mode": "normal",
+    "business_hours": {
+      "start": "09:00",
+      "end": "19:00",
+      "timezone": "America/Santiago"
+    }
+  },
+  "contacts": {
+    "+11111111111": {
+      "name": "",
+      "priority": "low",
+      "last_seen_at": "2026-02-21T03:48:31.818028+00:00",
+      "last_intent": "general",
+      "last_messages": [
+        {
+          "at": "2026-02-21T03:48:19.335666+00:00",
+          "text": "hola, quiero agendar una reunion"
+        },
+        {
+          "at": "2026-02-21T03:48:31.803488+00:00",
+          "text": "hola, quiero agendar una reunion"
+        },
+        {
+          "at": "2026-02-21T03:48:31.809184+00:00",
+          "text": "Demo comercial"
+        },
+        {
+          "at": "2026-02-21T03:48:31.811061+00:00",
+          "text": "lunes"
+        },
+        {
+          "at": "2026-02-21T03:48:31.812768+00:00",
+          "text": "10:30"
+        },
+        {
+          "at": "2026-02-21T03:48:31.814525+00:00",
+          "text": "1 hora"
+        },
+        {
+          "at": "2026-02-21T03:48:31.816265+00:00",
+          "text": "videollamada"
+        },
+        {
+          "at": "2026-02-21T03:48:31.818037+00:00",
+          "text": "1"
+        }
+      ],
+      "tags": [],
+      "stats": {
+        "inbound": 8,
+        "auto_replies": 8
+      }
+    },
+    "+56975551112": {
+      "name": "",
+      "priority": "low",
+      "last_seen_at": "2026-02-21T03:48:31.851992+00:00",
+      "last_intent": "general",
+      "last_messages": [
+        {
+          "at": "2026-02-21T03:48:31.839978+00:00",
+          "text": "Hay una emergencia real en casa"
+        },
+        {
+          "at": "2026-02-21T03:48:31.841119+00:00",
+          "text": "1"
+        },
+        {
+          "at": "2026-02-21T03:48:31.842920+00:00",
+          "text": "urgencia"
+        },
+        {
+          "at": "2026-02-21T03:48:31.844059+00:00",
+          "text": "2"
+        },
+        {
+          "at": "2026-02-21T03:48:31.845295+00:00",
+          "text": "Necesito que Lucas me llame ahora"
+        },
+        {
+          "at": "2026-02-21T03:48:31.846475+00:00",
+          "text": "1"
+        },
+        {
+          "at": "2026-02-21T03:48:31.848261+00:00",
+          "text": "urgente"
+        },
+        {
+          "at": "2026-02-21T03:48:31.849567+00:00",
+          "text": "3"
+        },
+        {
+          "at": "2026-02-21T03:48:31.850802+00:00",
+          "text": "Pagar cuenta mañana 19:30"
+        },
+        {
+          "at": "2026-02-21T03:48:31.852000+00:00",
+          "text": "confirmar"
+        }
+      ],
+      "tags": [],
+      "stats": {
+        "inbound": 40,
+        "auto_replies": 0
+      }
+    }
+  },
+  "metrics": {
+    "events": [
+      {
+        "at": "2026-02-21T03:48:19.335675+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "meeting",
+        "priority": "normal"
+      },
+      {
+        "at": "2026-02-21T03:48:19.336078+00:00",
+        "kind": "auto_reply_off_hours",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:19.342160+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:19.342957+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.343929+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.345806+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:19.346697+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.347648+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "meeting",
+        "priority": "normal"
+      },
+      {
+        "at": "2026-02-21T03:48:19.348637+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.349545+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.351411+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:19.352080+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.352964+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:19.353814+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.355473+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:19.356196+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.357100+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.357974+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.359436+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:19.360287+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.361254+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:19.362180+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.803498+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "meeting",
+        "priority": "normal"
+      },
+      {
+        "at": "2026-02-21T03:48:31.808034+00:00",
+        "kind": "meeting_flow_reply",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:31.809193+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "sales",
+        "priority": "normal"
+      },
+      {
+        "at": "2026-02-21T03:48:31.810358+00:00",
+        "kind": "meeting_flow_reply",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:31.811069+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.811984+00:00",
+        "kind": "meeting_flow_reply",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:31.812777+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.813776+00:00",
+        "kind": "meeting_flow_reply",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:31.814532+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.815551+00:00",
+        "kind": "meeting_flow_reply",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:31.816272+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "meeting",
+        "priority": "normal"
+      },
+      {
+        "at": "2026-02-21T03:48:31.817305+00:00",
+        "kind": "meeting_flow_reply",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:31.818044+00:00",
+        "kind": "inbound",
+        "msisdn": "+11111111111",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.819952+00:00",
+        "kind": "meeting_flow_reply",
+        "msisdn": "+11111111111"
+      },
+      {
+        "at": "2026-02-21T03:48:31.824973+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:31.826117+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.828040+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.830629+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:31.831664+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.832830+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "meeting",
+        "priority": "normal"
+      },
+      {
+        "at": "2026-02-21T03:48:31.834165+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.835449+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.837514+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:31.838660+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.839987+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:31.841126+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.842929+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:31.844067+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.845303+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.846483+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.848270+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "urgency",
+        "priority": "critical"
+      },
+      {
+        "at": "2026-02-21T03:48:31.849576+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.850809+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      },
+      {
+        "at": "2026-02-21T03:48:31.852008+00:00",
+        "kind": "inbound",
+        "msisdn": "+56975551112",
+        "intent": "general",
+        "priority": "low"
+      }
+    ]
+  }
+}

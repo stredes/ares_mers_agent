@@ -1,0 +1,13 @@
+# runtime / local
+.openclaw/
+.run/
+
+# python
+__pycache__/
+*.pyc
+
+# clwabot runtime data/artifacts
+clwabot/calendar/*.ics
+clwabot/data/backups/
+clwabot/data/owner_presence.json
+clwabot/data/google_calendar_queue.json

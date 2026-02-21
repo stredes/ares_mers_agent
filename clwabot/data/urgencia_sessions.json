@@ -1,0 +1,12 @@
+{
+  "sessions": [
+    {
+      "id": "urgsess-20260219220224365190",
+      "msisdn": "+56975551112",
+      "state": "esperando_opcion",
+      "kind": null,
+      "temp_detail": null,
+      "created_at": "2026-02-19T22:02:24.365236+00:00"
+    }
+  ]
+}

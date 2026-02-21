@@ -1,0 +1,17 @@
+# Contactos y reglas especiales
+
+vip_contacts:
+  - name: "VIP_1"
+    number: "+56975551112"
+    morning_message:
+      enabled: true
+      time: "08:30"
+      timezone: "America/Santiago"
+      text: "Buenos días bb 💖"  # Ajustable
+    auto_reply:
+      enabled: false
+      rules: []
+
+owner:
+  name: "stredes"
+  number: "+56954764325"
