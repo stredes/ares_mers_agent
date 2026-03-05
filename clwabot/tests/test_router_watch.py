@@ -1,6 +1,6 @@
 import unittest
 
-from clwabot.hooks.whatsapp_router_watch import parse_inbound_line
+from clwabot.hooks.whatsapp_router_watch import _is_plain_metadata_only, parse_inbound_line
 
 
 class RouterWatchTests(unittest.TestCase):
@@ -40,6 +40,10 @@ class RouterWatchTests(unittest.TestCase):
         assert msg is not None
         self.assertEqual(msg.msisdn, "+56911111111")
         self.assertEqual(msg.text, "hola mundo")
+
+    def test_detect_plain_metadata_line(self):
+        text = "2026-02-22T14:20:21.952Z [whatsapp] Inbound message +56975551112 -> +56954764325 (direct, text, 8 chars)"
+        self.assertTrue(_is_plain_metadata_only(text))
 
 
 if __name__ == "__main__":

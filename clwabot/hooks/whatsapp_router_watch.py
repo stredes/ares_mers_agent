@@ -17,6 +17,8 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Optional
 
+from clwabot.core.validator import VIP_MSISDN
+
 INBOUND_TAG = "[whatsapp]"
 FROM_RE = re.compile(r"from\s+(\+?\d{8,15})", re.IGNORECASE)
 ANY_PHONE_RE = re.compile(r"(\+?\d{8,15})")
@@ -113,6 +115,15 @@ def run_listener(msisdn: str, text: str) -> None:
     subprocess.Popen(cmd)
 
 
+def _normalize_msisdn(value: str) -> str:
+    return re.sub(r"\D", "", value or "")
+
+
+def _is_plain_metadata_only(text: str) -> bool:
+    lowered = (text or "").lower()
+    return "[whatsapp]" in lowered and "inbound message" in lowered and "chars" in lowered
+
+
 def main() -> int:
     print("[whatsapp_router_watch] listening stdin for WhatsApp inbound...", file=sys.stderr)
     recent = deque()
@@ -134,8 +145,15 @@ def main() -> int:
         if any(sig == signature for sig, _ in recent):
             continue
 
+        text = inbound.text
+
+        # En algunos builds de OpenClaw el body de inbound no se imprime en logs
+        # (solo metadata). Para VIP forzamos trigger para no perder urgencias.
+        if _normalize_msisdn(inbound.msisdn) == _normalize_msisdn(VIP_MSISDN) and _is_plain_metadata_only(text):
+            text = "urgencia"
+
         recent.append((signature, now))
-        run_listener(inbound.msisdn, inbound.text)
+        run_listener(inbound.msisdn, text)
 
     return 0
 

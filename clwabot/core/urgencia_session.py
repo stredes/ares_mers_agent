@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 from .ics_maker import TZ, make_ics
-from .urgencia_handler import manejar_urgencia
+from .urgencia_handler import manejar_urgencia, mensaje_contiene_urgencia
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SESSIONS_PATH = BASE_DIR / "data" / "urgencia_sessions.json"
@@ -124,8 +124,7 @@ def update_session(sess: UrgenciaSession) -> None:
 
 
 def _is_activation_text(text: str) -> bool:
-    lowered = _normalize_text(text)
-    return "urgente" in lowered or "urgencia" in lowered
+    return mensaje_contiene_urgencia(_normalize_text(text))
 
 
 def _parse_option(text: str) -> Optional[str]:

@@ -21,6 +21,11 @@ def default_state() -> Dict[str, Any]:
             "paused": False,
             "mode": "normal",  # normal | busy | vacation
             "business_hours": {"start": "09:00", "end": "19:00", "timezone": "America/Santiago"},
+            "features": {
+                "good_morning_vip": True,
+                "auto_meetings": True,
+                "urgency_protocol": True,
+            },
         },
         "contacts": {},
         "metrics": {"events": []},

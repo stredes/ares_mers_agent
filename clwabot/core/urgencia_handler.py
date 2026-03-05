@@ -1,5 +1,6 @@
 import json
 import uuid
+import re
 from difflib import SequenceMatcher
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -11,6 +12,10 @@ DATA_PATH = BASE_DIR / "data" / "urgencias.json"
 CALENDAR_DIR = BASE_DIR / "calendar"
 DEDUP_WINDOW_SECONDS = 120
 SEMANTIC_SIMILARITY_THRESHOLD = 0.88
+URGENCY_RE = re.compile(
+  r"\b(urgente|urgencia|emergencia|emergency|auxilio|socorro|critico|ayuda\s+ahora|ayuda\s+urgente)\b",
+  re.IGNORECASE,
+)
 
 CALENDAR_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -44,11 +49,25 @@ def _save_state(state: dict) -> None:
   DATA_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _normalize_for_match(text: str) -> str:
+  # Normaliza tildes para detectar "critico"/"crítico" de forma uniforme.
+  translate_map = str.maketrans({
+    "á": "a",
+    "é": "e",
+    "í": "i",
+    "ó": "o",
+    "ú": "u",
+    "ü": "u",
+    "ñ": "n",
+  })
+  return (text or "").lower().translate(translate_map)
+
+
 def mensaje_contiene_urgencia(text: str) -> bool:
   if not text:
     return False
-  lowered = text.lower()
-  return "urgente" in lowered or "urgencia" in lowered
+  normalized = _normalize_for_match(text)
+  return bool(URGENCY_RE.search(normalized))
 
 
 def _parse_iso_dt(value: str) -> Optional[datetime]:

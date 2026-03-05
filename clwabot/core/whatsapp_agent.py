@@ -94,6 +94,9 @@ def handle_incoming(msisdn: str, text: str) -> Dict[str, str]:
     }
 
   assistant_cfg = state.get("assistant", {})
+  features = assistant_cfg.get("features", {})
+  auto_meetings_enabled = features.get("auto_meetings", True)
+  urgency_protocol_enabled = features.get("urgency_protocol", True)
   if assistant_cfg.get("paused", False):
     return {
       "policy": "silence",
@@ -103,7 +106,7 @@ def handle_incoming(msisdn: str, text: str) -> Dict[str, str]:
     }
 
   # VIP con urgencia o sesión activa → usar flujo 1–4 de sesiones
-  if v.role == "vip" and (v.is_urgency or get_active_session(msisdn) is not None):
+  if v.role == "vip" and urgency_protocol_enabled and (v.is_urgency or get_active_session(msisdn) is not None):
     sess_decision = handle_vip_urgency_message(msisdn, text or "")
     vip_msg = sess_decision.get("vip_message", "")
     owner_msg = sess_decision.get("owner_message", "")
@@ -136,7 +139,7 @@ def handle_incoming(msisdn: str, text: str) -> Dict[str, str]:
       "owner_retry_delay_sec": "0",
     }
 
-  # Contactos externos: formulario de reunión con disparador por intención.
+  # Contactos externos: formulario de reunión + respuestas contextuales.
   if v.role == "other" and (get_active_meeting_session(msisdn) is not None or clean_text):
     if get_active_meeting_session(msisdn) is None and intent != "meeting" and not is_within_business_hours(state):
       mode = assistant_cfg.get("mode", "normal")
@@ -163,7 +166,16 @@ def handle_incoming(msisdn: str, text: str) -> Dict[str, str]:
         "owner_retry_delay_sec": "0",
       }
 
-    meeting = handle_meeting_message(msisdn, clean_text)
+    meeting = {
+      "contact_message": "",
+      "owner_message": "",
+      "contact_ics_path": "",
+      "owner_ics_path": "",
+      "followup_message": "",
+      "followup_delay_sec": "0",
+    }
+    if auto_meetings_enabled or get_active_meeting_session(msisdn) is not None:
+      meeting = handle_meeting_message(msisdn, clean_text)
     contact_msg = meeting.get("contact_message", "")
     owner_msg = meeting.get("owner_message", "")
     contact_ics_path = meeting.get("contact_ics_path", "")
@@ -188,7 +200,7 @@ def handle_incoming(msisdn: str, text: str) -> Dict[str, str]:
         "owner_retry_delay_sec": "0",
       }
 
-    # Si no hay flujo de reunión activo, usar guion contextual por intención.
+    # Si no hay flujo de reunión activo y no es meeting, usar guion contextual.
     if intent != "meeting":
       scripted = pick_auto_reply(intent)
       if scripted:

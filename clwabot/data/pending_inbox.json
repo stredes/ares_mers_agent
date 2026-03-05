@@ -1,3 +1,20 @@
 {
-  "events": []
+  "events": [
+    {
+      "id": "c43514715f5f6c8fe10d78bc00090e00cc29f52a",
+      "msisdn": "+56975551112",
+      "text": "Urgencia",
+      "trigger_ts": 1771973891,
+      "status": "auto_replied",
+      "updated_ts": 1771973921
+    },
+    {
+      "id": "a7fe5d235c5a0dd44bbb1d93e0677bf489fd0bca",
+      "msisdn": "+56975551112",
+      "text": "Urgencia",
+      "trigger_ts": 1771975328,
+      "status": "processing",
+      "updated_ts": 1771975343
+    }
+  ]
 }

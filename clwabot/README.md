@@ -106,6 +106,21 @@ Guía operativa disponible en:
 
 `docs/OSCP_LAB_PROTOCOL.md`
 
+## Web Command Center
+
+Panel web local con:
+- urgencias VIP (filtros + marcar atendida + descarga ICS),
+- reuniones externas (estado y descarga ICS),
+- control de modo/horario/toggles del asistente,
+- timeline humano de actividad,
+- estado de `openclaw-gateway.service` y `clwabot-router.service`.
+
+Arranque:
+
+```bash
+python -m clwabot.core.web_panel --host 127.0.0.1 --port 8787
+```
+
 ## Tests
 
 ```bash
